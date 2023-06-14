@@ -1,0 +1,16 @@
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+**/.DS_Store
+
+### IntelliJ IDEA ###
+**/.idea
+**/.mvn
+*.iws
+*.iml
+*.ipr
+*mvn
+*mvnw.cmd
+
+### VS Code ###
+.vscode/
