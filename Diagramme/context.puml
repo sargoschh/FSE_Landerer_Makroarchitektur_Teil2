@@ -1,0 +1,22 @@
+@startuml ErpliteApplication_C4Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title ErpliteApplication C4Context-Diagramm
+
+SHOW_PERSON_OUTLINE()
+Person(user, User)
+
+System(system, "ErpliteApplication", "Plattform zur Verwaltung von Bestellungen")
+
+System(frontend, "Frontend", "Frontend für die Anwendung")
+
+
+System_Ext(host, "Docker Container", "Hostet das System und stellt Funktionalität zur Verfügung")
+
+
+Rel_D(user, frontend, "uses")
+Rel_D(frontend, system, "uses")
+Rel_D(system, host, "uses")
+LAYOUT_WITH_LEGEND()
+@enduml
+

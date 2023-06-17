@@ -1,0 +1,44 @@
+@startuml Ordermanagement_C4ComponentBackend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+!include FONTAWESOME/server.puml
+!include DEVICONS/database.puml
+!include FONTAWESOME/server.puml
+!include DEVICONS/bootstrap.puml
+!include DEVICONS/wordpress.puml
+
+'LAYOUT_LEFT_RIGHT()
+
+title Ordermanagement C4Component-Diagram
+
+
+Container(apiGateway, "API-Gateway", "Spring Boot Applikation mit Spring Cloud Gateway", "Routet eingehende Anfragen auf die entsprechenden Microservices weiter und kann weitere Funktionalitäten wie Authentifizierung, Load-Balancing, Circuit-Breaker oder Retries bereitstellen.")
+Container(serviceDiscovery, "Service Discovery", "Spring Boot Applikation mit Netflix Eureka", "Registriert die Microservices wenn diese gestartet werden und stellt einen Zugriff auf diese per Namen aus dem API-Gateway heraus bereit.")
+
+Container_Boundary(ordermanagement, "Ordermanagement") {
+Component(orc, "Order REST-Controller", "REST-Controller", "Stellt eine REST-Schnittstelle bereit, über die Bestellungen abgerufen und bearbeitet werden können.")
+Component(ocs, "Order Command Service", "Businesslogik-Interface", "Verarbeitet Befehle im Zusammenhang mit Bestellungen, z. B. das Platzieren von Bestellungen und die Überprüfung der Zahlung.")
+Component(oqs, "Order Query Service", "Businesslogik-Interface", "Bietet Abfragemöglichkeiten für Bestellungen, um Bestelldaten basierend auf bestimmten Kriterien abzurufen.")
+Component(or, "Order Repository", "Datenzugriffs-Interfaces", "Stellt eine Schnittstelle zum Datenzugriff auf Bestellungen in der Datenbank bereit, einschließlich Methoden zum Lesen, Schreiben und Aktualisieren von Bestelldaten.")
+Component(oomr, "Order Outgoing Message Relay", "Messaging-Interface", "Messaging-Interface für das Veröffentlichen von ausgehenden Bestellereignissen wie Bestellung platzieren, Zahlung validieren und Lieferung initiieren. Ermöglicht die Kommunikation mit anderen Komponenten und Systemen.")
+}
+
+Container(frontend, "Frontend", "Vanilla JavaScript", "Form von 3 Seiten (Webshop, Stock, Delivery), die die MS-Infrastruktur (Backend) über das API-Gateway verwenden.")
+ContainerDb(database, "MariaDB", "mariadb", "Speichert die Inhalte der Applikation sowie die Informationen der Kunden, Bestellungen und der Lagerware in drei unterschiedlichen Datenbanken.", "database")
+System_Ext(rabbitmq, "RabbitMQ", "Die Kommunikation zwischen den Spring-Boot-Services erfolgt über den RabbitMQ Message Broker.")
+
+Rel(frontend, apiGateway, "sends HTTP-Requests")
+BiRel(apiGateway, serviceDiscovery, "requests IP-Adresses and Ports from MS")
+Rel(apiGateway, orc, "passes HTTP-Requests on")
+Rel(orc, ocs, "uses")
+Rel(orc, oqs, "uses")
+Rel(ocs, or, "uses")
+Rel(oqs, or, "uses")
+BiRel(or, database, "reads from and writes to")
+Rel(ocs, oomr, "uses")
+Rel(oomr, rabbitmq, "sends messages")
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml ErpliteApplication_C4Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+!include FONTAWESOME/server.puml
+!include DEVICONS/database.puml
+!include FONTAWESOME/server.puml
+!include DEVICONS/bootstrap.puml
+!include DEVICONS/wordpress.puml
+!include DEVICONS/docker.puml
+
+LAYOUT_WITH_LEGEND()
+
+title ErpliteApplication C4Container-Diagramm
+
+SHOW_PERSON_OUTLINE()
+Person(user, User)
+
+System_Boundary(erpliteApplication, "ErpliteApplication ") {
+    Container(apiGateway, "API-Gateway", "Spring Boot Applikation mit Spring Cloud Gateway", "Routet eingehende Anfragen auf die entsprechenden Microservices weiter und kann weitere Funktionalitäten wie Authentifizierung, Load-Balancing, Circuit-Breaker oder Retries bereitstellen.")
+    Container(deliverMS, "DeliveryMS", "SpringBoot", "Spring Boot Applikation ohne explizite Architektur - Verwaltet die Logik im Bezug auf die Bestellungen")
+    Container(orderMS, "OrdersMS", "SpringBoot", "Spring Boot Applikation nach einer Ports And Adapters-Architektur und mit Implementierung einiger taktischer DDD-Muster - Verwaltet die Logik im Bezug auf das Lager.")
+    Container(stockMS, "StockMS", "SpringBoot", "Spring Boot Applikation ohne explizite Architektur - Stellt Funktionen für die Hauptmodule bereit")
+    Container(serviceDiscovery, "Service Discovery", "Spring Boot Applikation mit Netflix Eureka", "Registriert die Microservices wenn diese gestartet werden und stellt einen Zugriff auf diese per Namen aus dem API-Gateway heraus bereit.")
+
+}
+Container(frontend, "Frontend", "Vanilla JavaScript", "Form von 3 Seiten (Webshop, Stock, Delivery), die die MS-Infrastruktur (Backend) über das API-Gateway verwenden.")
+
+System_Boundary(docker, "Docker Container") {
+ContainerDb(database, "MariaDB", "mariadb", "Speichert die Inhalte der Applikation sowie die Informationen der Kunden, Bestellungen und der Lagerware in drei unterschiedlichen Datenbanken.", "database")
+
+System_Ext(phpmyadmin, "PHPMyAdmin", "Darüber können die Datenbanken verwaltet werden.")
+
+System_Ext(adminer, "Adminer", "Darüber können die Datenbanken verwaltet werden.")
+
+System_Ext(rabbitmq, "RabbitMQ", "Die Kommunikation zwischen den Spring-Boot-Services erfolgt über den RabbitMQ Message Broker.")
+}
+
+Rel(phpmyadmin, database, "manages")
+Rel(adminer, database, "manages")
+BiRel(rabbitmq, deliverMS, "regulates communication")
+BiRel(rabbitmq, orderMS, "regulates communication")
+BiRel(rabbitmq, stockMS, "regulates communication")
+Rel(user, frontend, "uses")
+Rel(frontend, apiGateway, "sends HTTP-Requests")
+Rel(deliverMS, serviceDiscovery, "registers")
+Rel(orderMS, serviceDiscovery, "registers")
+Rel(stockMS, serviceDiscovery, "registers")
+BiRel(deliverMS, database, "reads from and writes to")
+BiRel(orderMS, database, "reads from and writes to")
+BiRel(stockMS, database, "reads from and writes to")
+Rel(apiGateway, orderMS, "passes HTTP-Requests on")
+Rel(apiGateway, deliverMS, "passes HTTP-Requests on")
+Rel(apiGateway, stockMS, "passes HTTP-Requests on")
+BiRel(apiGateway, serviceDiscovery, "requests IP-Adresses and Ports from MS")
+
+@enduml
+
