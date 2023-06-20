@@ -31,7 +31,7 @@ ContainerDb(database, "MariaDB", "mariadb", "Speichert die Inhalte der Applikati
 System_Ext(rabbitmq, "RabbitMQ", "Die Kommunikation zwischen den Spring-Boot-Services erfolgt über den RabbitMQ Message Broker.")
 
 Rel(frontend, apiGateway, "sends HTTP-Requests")
-BiRel(apiGateway, serviceDiscovery, "requests IP-Adresses and Ports from MS")
+BiRel(apiGateway, serviceDiscovery, "requests names for MS")
 Rel(apiGateway, orc, "passes HTTP-Requests on")
 Rel(orc, ocs, "uses")
 Rel(orc, oqs, "uses")

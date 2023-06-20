@@ -54,7 +54,7 @@ BiRel(stockMS, database, "reads from and writes to")
 Rel(apiGateway, orderMS, "passes HTTP-Requests on")
 Rel(apiGateway, deliverMS, "passes HTTP-Requests on")
 Rel(apiGateway, stockMS, "passes HTTP-Requests on")
-BiRel(apiGateway, serviceDiscovery, "requests IP-Adresses and Ports from MS")
+BiRel(apiGateway, serviceDiscovery, "requests names for MS")
 
 @enduml
 
